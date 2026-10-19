@@ -65,11 +65,14 @@ cd Web3-Hackathon-Collector
 # 小批量、可恢复地采集
 node .\crawl-and-clone.mjs --platform=blitz --state-file=state-blitz.json --max-pages=100
 
-# 持续采集某个平台；停止条件由运行参数与本地队列决定
+# 持续采集某个平台；省略 -TargetRepos 时在候选队列耗尽后停止
 .\run-platform-continuously.ps1 -Platform ethglobal
+
+# 可选：为本次运行设置成功克隆数量上限
+.\run-platform-continuously.ps1 -Platform ethglobal -TargetRepos 200
 ```
 
-运行前请确认网络、磁盘空间和公开 API 的访问限制。首次运行会在本地创建 `repositories/`、`descriptions/`、`state-*.json` 与 `clone-reservations.json`；这些文件均已由 `.gitignore` 排除。
+运行前请确认网络、磁盘空间和公开 API 的访问限制。`-MaxPages`、`-DelayMs`、`-TargetRepos` 与 `-PauseSeconds` 均可调整；`-TargetRepos 0`（默认值）表示不按数量提前停止。首次运行会在本地创建 `repositories/`、`descriptions/`、`state-*.json` 与 `clone-reservations.json`；这些文件均已由 `.gitignore` 排除。
 
 ## 数据来源
 
