@@ -16,16 +16,16 @@
 
 ## 收录范围
 
-| 平台 | 归档目录 | 目标 |
-| --- | --- | --- |
-| [ETHGlobal](https://ethglobal.com/showcase) | `repositories/ethglobal/` | 1,000 个源码快照 |
-| [Blitz / Monad](https://blitz.devnads.com/showcase) | `repositories/blitz/` | 1,000 个源码快照 |
-| [Devfolio](https://devfolio.co/search?primary_filter=hackathons) | `repositories/devfolio/` | 1,000 个源码快照 |
-| [HackQuest](https://www.hackquest.io/projects) | `repositories/hackquest/` | 1,000 个源码快照 |
-| [DoraHacks](https://dorahacks.io/hackathon) | `repositories/dorahacks/` | 持续补充 |
-| [HackathonProjects](https://hackathonprojects.dev/) | `repositories/hackathonprojects/` | 1,000 个源码快照 |
+| 平台 | 本地输出目录 |
+| --- | --- |
+| [ETHGlobal](https://ethglobal.com/showcase) | `repositories/ethglobal/` |
+| [Blitz / Monad](https://blitz.devnads.com/showcase) | `repositories/blitz/` |
+| [Devfolio](https://devfolio.co/search?primary_filter=hackathons) | `repositories/devfolio/` |
+| [HackQuest](https://www.hackquest.io/projects) | `repositories/hackquest/` |
+| [DoraHacks](https://dorahacks.io/hackathon) | `repositories/dorahacks/` |
+| [HackathonProjects](https://hackathonprojects.dev/) | `repositories/hackathonprojects/` |
 
-`repositories/github-discovery/` 存放通过公开 GitHub 搜索发现、但未能可靠归属至单一展示平台的补充项目。实际数量与可重试状态以 `state*.json` 为准。
+`repositories/github-discovery/` 存放通过公开 GitHub 搜索发现、但未能可靠归属至单一展示平台的补充项目。采集规模、每次处理的页面数和停止条件均可通过命令行参数调整；运行状态保存在本地状态文件中。
 
 ## 目录结构
 
@@ -65,7 +65,7 @@ cd Web3-Hackathon-Collector
 # 小批量、可恢复地采集
 node .\crawl-and-clone.mjs --platform=blitz --state-file=state-blitz.json --max-pages=100
 
-# 持续采集某个平台，直到达到目标或候选队列耗尽
+# 持续采集某个平台；停止条件由运行参数与本地队列决定
 .\run-platform-continuously.ps1 -Platform ethglobal
 ```
 
