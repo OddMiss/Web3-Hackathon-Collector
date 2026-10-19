@@ -1,0 +1,53 @@
+# Locally collected third-party source snapshots and generated descriptions.
+# They are intentionally kept out of this repository; run the collector to
+# recreate them on another machine.
+/repositories/
+/descriptions/
+/REPOSITORY_DESCRIPTIONS.md
+/clone-reservations.json
+/state.json
+/state-*.json
+
+# Nested repositories are source snapshots, not Git submodules.
+repositories/**/.git/
+
+# Dependencies and build output inside archived third-party projects.
+**/node_modules/
+**/.pnpm-store/
+**/.yarn/
+**/.vite/
+**/.next/
+**/.nuxt/
+**/.svelte-kit/
+**/dist/
+**/build/
+**/coverage/
+**/.cache/
+**/__pycache__/
+**/*.py[cod]
+
+# Local secrets and machine-specific configuration.
+**/.env
+**/.env.local
+**/.env.development.local
+**/.env.test.local
+**/.env.production.local
+**/*.pem
+**/*.key
+**/keystore/
+
+# Local crawler locks and runtime output.
+.clone-reservations.lock
+state.json.lock
+state-*.json.lock
+*.log
+logs/
+
+# OS and editor metadata.
+.DS_Store
+Thumbs.db
+Desktop.ini
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
