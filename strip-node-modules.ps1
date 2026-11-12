@@ -1,6 +1,8 @@
 param(
     [ValidateSet('ethglobal', 'blitz', 'devfolio', 'hackquest', 'dorahacks', 'hackathonprojects', 'github-discovery')]
-    [string[]]$Platform
+    [string[]]$Platform,
+
+    [switch]$TopLevelOnly
 )
 
 $ErrorActionPreference = 'Continue'
@@ -26,7 +28,7 @@ function Remove-NodeModulesWithin([string]$Directory) {
             }
             continue
         }
-        Remove-NodeModulesWithin $child.FullName
+        if (-not $TopLevelOnly) { Remove-NodeModulesWithin $child.FullName }
     }
 }
 
@@ -38,7 +40,13 @@ foreach ($platformName in $platforms) {
     $removed = 0
     $failed = 0
     $remaining = 0
-    Remove-NodeModulesWithin $platformRoot
+    if ($TopLevelOnly) {
+        foreach ($project in @(Get-ChildItem -LiteralPath $platformRoot -Directory -Force -ErrorAction SilentlyContinue)) {
+            Remove-NodeModulesWithin $project.FullName
+        }
+    } else {
+        Remove-NodeModulesWithin $platformRoot
+    }
     $results += [PSCustomObject]@{
         platform = $platformName
         removed = $removed

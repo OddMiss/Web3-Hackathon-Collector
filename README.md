@@ -80,6 +80,9 @@ node .\crawl-and-clone.mjs --platform=blitz --state-file=state-blitz.json --max-
 
 ```powershell
 .\strip-node-modules.ps1
+
+# 仅清理每个项目根目录的依赖，用于快速释放常见依赖占用
+.\strip-node-modules.ps1 -TopLevelOnly
 ```
 
 ## 数据来源
