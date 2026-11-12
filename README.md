@@ -82,6 +82,9 @@ node .\crawl-and-clone.mjs --platform=blitz --state-file=state-blitz.json --max-
 # 深度清理全部项目目录（推荐）
 node .\strip-node-modules.mjs --concurrency=16
 
+# 只核验剩余数量，不删除任何文件
+node .\strip-node-modules.mjs --dry-run --concurrency=16
+
 # 使用 PowerShell 清理；可按平台限制范围
 .\strip-node-modules.ps1
 

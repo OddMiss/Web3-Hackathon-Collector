@@ -10,6 +10,7 @@ import { join } from 'node:path';
 
 const repositoryRoot = join(process.cwd(), 'repositories');
 const requestedConcurrency = Number(process.argv.find(arg => arg.startsWith('--concurrency='))?.split('=')[1] ?? 16);
+const dryRun = process.argv.includes('--dry-run');
 const concurrency = Number.isInteger(requestedConcurrency) && requestedConcurrency > 0
   ? Math.min(requestedConcurrency, 64)
   : 16;
@@ -20,6 +21,7 @@ const initialEntries = await readdir(repositoryRoot, { withFileTypes: true });
 const queue = initialEntries.filter(entry => entry.isDirectory()).map(entry => join(repositoryRoot, entry.name));
 let active = 0;
 let removed = 0;
+let found = 0;
 let errors = 0;
 
 const pause = () => new Promise(resolve => setTimeout(resolve, 20));
@@ -37,6 +39,8 @@ async function worker() {
       for (const entry of entries) {
         const entryPath = join(directory, entry.name);
         if (entry.name === 'node_modules') {
+          found++;
+          if (dryRun) continue;
           try {
             await rm(entryPath, { recursive: true, force: true, maxRetries: 3, retryDelay: 250 });
             removed++;
@@ -56,4 +60,4 @@ async function worker() {
 }
 
 await Promise.all(Array.from({ length: concurrency }, worker));
-console.log(JSON.stringify({ repositoryRoot, concurrency, removed, errors }, null, 2));
+console.log(JSON.stringify({ repositoryRoot, concurrency, dryRun, found, removed, errors }, null, 2));
