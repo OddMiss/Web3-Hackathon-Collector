@@ -225,6 +225,29 @@ function clone(repo, destination, timeoutMs = 120000) {
   });
 }
 
+async function removeNodeModules(target) {
+  // Archived projects are source snapshots. Dependencies are reproducible from
+  // their manifests and lockfiles, while committed or locally installed
+  // node_modules trees make the collection disproportionately large.
+  let removed = 0;
+  async function visit(directory) {
+    let entries;
+    try { entries = await readdir(directory, { withFileTypes: true }); }
+    catch { return; }
+    for (const entry of entries) {
+      const entryPath = join(directory, entry.name);
+      if (entry.name === 'node_modules') {
+        await rm(entryPath, { recursive: true, force: true, maxRetries: 3, retryDelay: 250 });
+        removed++;
+        continue;
+      }
+      if (entry.isDirectory() && entry.name !== '.git') await visit(entryPath);
+    }
+  }
+  await visit(target);
+  return removed;
+}
+
 function cleanSummary(text) {
   return text
     .replace(/<[^>]+>/g, ' ').replace(/!?(?:\[[^\]]*\]\([^)]*\))/g, ' ')
@@ -319,10 +342,16 @@ try {
         state.repositories[repo] = { firstSeenAt: new Date().toISOString(), discoveredFrom: item.url, platform, target, status: 'pending' };
         await saveState(state); // reserve it before cloning: this is the de-duplication boundary.
         const result = await clone(repo, target);
-        state.repositories[repo] = { ...state.repositories[repo], status: result.code === 0 ? 'cloned' : 'failed', finishedAt: new Date().toISOString(), error: result.code === 0 ? undefined : result.stderr };
+        let nodeModulesRemoved = 0;
+        let cleanupWarning;
+        if (result.code === 0) {
+          try { nodeModulesRemoved = await removeNodeModules(target); }
+          catch (error) { cleanupWarning = `node_modules cleanup failed: ${error.message}`; }
+        }
+        state.repositories[repo] = { ...state.repositories[repo], status: result.code === 0 ? 'cloned' : 'failed', finishedAt: new Date().toISOString(), error: result.code === 0 ? undefined : result.stderr, nodeModulesRemoved, cleanupWarning };
         await finaliseReservation(repo, result.code === 0 ? 'cloned' : 'failed', result.code === 0 ? undefined : result.stderr);
         if (result.code === 0) await writeDescription(repo, target, item.url);
-        note(state, result.code === 0 ? 'cloned' : 'clone_failed', { repo, from: item.url, error: result.code === 0 ? undefined : result.stderr });
+        note(state, result.code === 0 ? 'cloned' : 'clone_failed', { repo, from: item.url, error: result.code === 0 ? undefined : result.stderr, nodeModulesRemoved, cleanupWarning });
         await saveState(state);
         continue;
       }

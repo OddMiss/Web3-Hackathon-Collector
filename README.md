@@ -41,7 +41,8 @@
 ├── crawl-and-clone.mjs           # 主采集器
 ├── run-platform-continuously.ps1 # 单平台持续采集入口
 ├── rebuild-state.mjs             # 从本地快照重建状态
-└── organize-*.mjs                # 按平台整理源码和描述
+├── organize-*.mjs                # 按平台整理源码和描述
+└── strip-node-modules.ps1        # 清理已有本地快照中的 Node.js 依赖目录
 ```
 
 仓库目录名由可读名称和稳定哈希后缀组成，以避免同名项目碰撞。每个描述文件记录公开源码 URL、发现页面、项目摘要和顶层文件结构。
@@ -51,6 +52,7 @@
 - 仅处理公开展示页和公开代码托管链接；不登录、不提交表单、不收集私有仓库。
 - 以规范化后的 Forge URL（主机、组织、仓库名）去重，并在克隆前建立全局预留记录。
 - 新项目使用浅克隆：`git clone --depth 1 --single-branch --no-tags`。
+- 每次成功保存项目后，自动递归删除项目内的 `node_modules/`；需要依赖时应根据项目自己的 manifest 或 lockfile 按需重新安装。
 - 当前归档已移除各项目内的 `.git/` 历史目录，只保留源码快照，以减少体积与迁移成本。
 - 若需要某个项目的完整历史，请根据相应描述文件或状态文件中的原始 URL 单独重新克隆。
 
@@ -73,6 +75,12 @@ node .\crawl-and-clone.mjs --platform=blitz --state-file=state-blitz.json --max-
 ```
 
 运行前请确认网络、磁盘空间和公开 API 的访问限制。`-MaxPages`、`-DelayMs`、`-TargetRepos` 与 `-PauseSeconds` 均可调整；`-TargetRepos 0`（默认值）表示不按数量提前停止。首次运行会在本地创建 `repositories/`、`descriptions/`、`state-*.json` 与 `clone-reservations.json`；这些文件均已由 `.gitignore` 排除。
+
+若目录中已经存在旧的源码快照，可单独清理其依赖目录：
+
+```powershell
+.\strip-node-modules.ps1
+```
 
 ## 数据来源
 
