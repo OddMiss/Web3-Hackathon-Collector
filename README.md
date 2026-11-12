@@ -79,6 +79,10 @@ node .\crawl-and-clone.mjs --platform=blitz --state-file=state-blitz.json --max-
 若目录中已经存在旧的源码快照，可单独清理其依赖目录：
 
 ```powershell
+# 深度清理全部项目目录（推荐）
+node .\strip-node-modules.mjs --concurrency=16
+
+# 使用 PowerShell 清理；可按平台限制范围
 .\strip-node-modules.ps1
 
 # 仅清理每个项目根目录的依赖，用于快速释放常见依赖占用
